@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room Group</title>
+</head>
+<body>
+<textarea name="" id="chat_log" cols="100" rows="20"></textarea><br>
+<input type="text" id="input_message" size="100"><br>
+<input id="input_message_submit" value="Send" type="button">
+<script>
+    var ws = new WebSocket('ws://127.0.0.1:8000/ws/sc/');
+    ws.onopen = function(){
+    console.log('websocket connection open')
+    ws.send('Hi from client')
+    }
+    ws.onmessage = function(){
+    console.log('Message is receive from server',event)
+    console.log('Message  data is receive from server',event.data)
+    const data = JSON.parse(event.data)
+    console.log('parse data....',data)
+    console.log('parse data type....',typeof (data))
+    console.log('Actual message',data.msg)
+    document.querySelector('#chat_log').value +=(data.msg+'/n')
+
+
+    }
+    ws.onclose = function(){
+       console.error('websocket is close unexpectedly')
+    };
+    document.getElementById('input_message_submit').onclick =
+    function (event){
+    const messageInputDom = document.getElementById('input_message')
+    const message = messageInputDom.value
+    ws.send(JSON.stringify({
+    'msg':message
+    }))
+    messageInputDom.value = ''
+    }
+</script>
+</body>
+</html>
